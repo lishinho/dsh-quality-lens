@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>模型质量雷达 · 原型</title>
+<style>
+  :root{
+    --bg:#f2f3f5; --surface:#fff; --line:#e7e8ea; --line-soft:#f0f1f3;
+    --ink:#1d2129; --ink2:#5b6472; --ink3:#8b929e; --ink4:#aab0ba;
+    --green:#0e9f6e; --green-soft:#e9f7f1; --green-line:#c5e9db;
+    --amber:#b45309; --amber-soft:#fdf3e3; --red:#b91c1c;
+    --shadow:0 18px 50px rgba(18,24,40,.10),0 2px 8px rgba(18,24,40,.05);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:var(--bg);color:var(--ink);font:14px/1.65 "PingFang SC","Hiragino Sans GB","Microsoft YaHei",-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  .app{height:100vh;display:flex;flex-direction:column}
+  /* header */
+  .bar{height:48px;flex:0 0 48px;display:flex;align-items:center;gap:12px;padding:0 18px;background:#fbfbfc;border-bottom:1px solid var(--line)}
+  .logo{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#16b981,#0b7a55);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
+  .brand{font-weight:600;font-size:13px;letter-spacing:.2px}
+  .brand small{display:block;color:var(--ink4);font-size:9.5px;letter-spacing:1.6px;font-weight:500}
+  .tabs{display:flex;gap:4px;margin-left:10px;background:#f1f2f4;padding:3px;border-radius:9px}
+  .tab{border:0;background:transparent;font:inherit;font-size:12px;color:var(--ink2);padding:4px 10px;border-radius:6px;cursor:pointer}
+  .tab.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .spacer{flex:1}
+  .ctl{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink2);cursor:pointer;user-select:none}
+  .btn{border:1px solid var(--line);background:#fff;border-radius:7px;padding:6px 11px;font:inherit;font-size:12px;color:var(--ink2);cursor:pointer}
+  .btn:hover{border-color:#c3c9d2}
+  .btn.primary{background:var(--green);border-color:var(--green);color:#fff}
+  .btn.primary:hover{filter:brightness(.96)}
+  .banner{background:#fdf8ec;border-bottom:1px solid #f2e4c8;color:#7a5a1e;font-size:11.5px;padding:6px 18px;display:flex;gap:10px;align-items:center}
+  .banner b{font-weight:600}
+  .banner .x{margin-left:auto;cursor:pointer;color:#a98a4a}
+  /* main */
+  .main{flex:1;min-height:0;display:flex;position:relative;overflow:hidden}
+  .chat{flex:1;min-width:0;overflow:auto;padding:24px 40px 60px;scroll-behavior:smooth;transition:padding-right .18s ease}
+  body.panel-open .chat{padding-right:470px}
+  @media(max-width:900px){body.panel-open .chat{padding-right:18px}}
+  .head{display:flex;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--line-soft);margin-bottom:22px}
+  .head h1{font-size:15px;font-weight:600;margin:0}
+  .tag{font-size:10.5px;color:var(--ink2);background:#f4f5f7;border:1px solid var(--line);border-radius:6px;padding:2px 7px}
+  .head .meta{margin-left:auto;display:flex;gap:7px}
+  .user-row{display:flex;justify-content:flex-end;margin:0 0 26px}
+  .bubble{max-width:560px;background:#eef2f7;border-radius:14px 14px 4px 14px;padding:12px 15px;font-size:13.5px;line-height:1.75;color:#26303d;white-space:pre-wrap}
+  .assistant{display:flex;gap:12px}
+  .avatar{width:26px;height:26px;flex:0 0 26px;border-radius:8px;background:#0f1115;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-top:2px}
+  .answer{flex:1;min-width:0}
+  .who{font-size:11px;color:var(--ink4);margin-bottom:8px}
+  .answer-text{font-size:13.5px;line-height:1.85;color:#222833;max-width:760px}
+  .answer-text p{margin:0 0 9px}
+  .answer-text ul{margin:0 0 9px;padding-left:20px}
+  .answer-text li{margin:2px 0}
+  .answer-text h4{font-size:13.5px;margin:12px 0 6px}
+  .answer-text code{background:#f2f3f5;border-radius:4px;padding:1px 4px;font-size:12px}
+  .answer-text pre{background:#f7f8fa;border:1px solid var(--line);border-radius:8px;padding:10px 12px;overflow:auto;font-size:12px}
+  /* action row */
+  .actions{display:flex;align-items:center;gap:2px;margin-top:14px;height:30px;flex-wrap:wrap}
+  .ic{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#8b929e;cursor:default}
+  .ic:hover{background:#f2f3f5;color:#3b4350}
+  .sep{width:1px;height:14px;background:var(--line);margin:0 8px}
+  .chipwrap{position:relative;display:inline-flex;align-items:center}
+  .chip{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:8px;border:1px solid transparent;
+    font:inherit;font-size:12px;font-weight:600;line-height:1;cursor:pointer;white-space:nowrap;background:transparent;transition:filter .12s}
+  .chip:hover{filter:brightness(.97)}
+  .chip:focus-visible{outline:2px solid #2563eb;outline-offset:2px}
+  .dia{width:7px;height:7px;border-radius:1.5px;transform:rotate(45deg);background:currentColor;flex:none}
+  .chip.good{color:#0e9f6e;background:#e9f7f1;border-color:#c5e9db}
+  .chip.excellent{color:#0b7a55;background:#dff3ea;border-color:#aee0cb}
+  .chip.fair{color:#b45309;background:#fdf3e3;border-color:#f0d9b5}
+  .chip.poor{color:#b91c1c;background:#fdecec;border-color:#f3c9c9}
+  .chip .pending{font-weight:500;color:#7a8492}
+  .usage{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--ink3);margin-left:10px}
+  .time{font-size:11.5px;color:var(--ink4);margin-left:12px}
+  .nochip{font-size:11.5px;color:var(--ink4);margin-left:10px}
+  /* panel */
+  .backdrop{position:fixed;inset:0;background:rgba(10,14,20,.18);z-index:40;display:none}
+  .backdrop.on{display:block}
+  .panel{position:fixed;top:64px;right:22px;bottom:22px;width:420px;max-width:calc(100vw - 32px);z-index:41;
+    background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);
+    display:none;flex-direction:column;overflow:hidden}
+  .panel.on{display:flex}
+  .phead{display:flex;align-items:flex-start;padding:16px 18px 12px;border-bottom:1px solid var(--line-soft)}
+  .phead h2{font-size:14px;margin:0;font-weight:600}
+  .phead .sub{font-size:10.5px;color:var(--ink3);margin-top:3px}
+  .pclose{margin-left:auto;border:0;background:transparent;color:var(--ink3);font-size:18px;cursor:pointer;line-height:1;padding:2px 4px}
+  .pbody{flex:1;overflow:auto;padding:14px 18px 18px}
+  .hero{display:flex;align-items:center;gap:14px}
+  .ring{width:82px;height:82px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;
+    background:conic-gradient(var(--tone,#0e9f6e) 0 var(--pct,0%),rgba(20,26,36,.09) var(--pct,0%))}
+  .ring::after{content:"";position:absolute;inset:6px;border-radius:50%;background:#fff}
+  .ring b{position:relative;z-index:1;font-size:24px;letter-spacing:-.5px}
+  .ring b small{font-size:10px;color:var(--ink4);font-weight:500;margin-left:1px}
+  .hero-main{min-width:0}
+  .badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+  .badge{font-size:10.5px;font-weight:600;border-radius:6px;padding:2px 7px;background:rgba(14,159,110,.12);color:#0b6b4e}
+  .badge.plain{background:#f1f3f5;color:var(--ink2);font-weight:500}
+  .summary{font-size:12px;color:var(--ink2);line-height:1.6}
+  .sec{padding-top:13px;margin-top:13px;border-top:1px solid var(--line-soft)}
+  .sec h3{font-size:10.5px;color:var(--ink3);letter-spacing:.4px;margin:0 0 9px;font-weight:600}
+  .bar-row{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+  .bar-label{width:58px;flex:none;font-size:11.5px;color:var(--ink2)}
+  .bar-track{flex:1;height:6px;border-radius:999px;background:rgba(20,26,36,.09);overflow:hidden}
+  .bar-fill{height:100%;border-radius:999px;background:var(--tone,#0e9f6e)}
+  .bar-val{width:24px;text-align:right;font-size:11.5px;color:var(--ink2);font-variant-numeric:tabular-nums}
+  .topic-top{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
+  .topic-num{font-size:21px;font-weight:700;letter-spacing:-.3px}
+  .topic-num small{font-size:10px;color:var(--ink4);font-weight:500;margin-left:1px}
+  .muted{font-size:10.5px;color:var(--ink3)}
+  .tags{display:flex;flex-wrap:wrap;gap:5px}
+  .ttag{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;border-radius:6px;padding:3px 7px;background:#f4f5f7;color:var(--ink2)}
+  .ttag::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.8}
+  .ttag.covered{color:#0e9f6e}.ttag.partial{color:#b45309}.ttag.missing{color:var(--ink3)}
+  .quote{border-left:2px solid #c5e9db;background:#fafbfb;border-radius:0 7px 7px 0;padding:8px 10px;margin-bottom:7px}
+  .quote .why{font-size:10px;color:var(--ink3);margin-bottom:3px}
+  .quote .text{font-size:11.5px;color:#2b3340;line-height:1.6}
+  .sug{display:flex;gap:7px;font-size:11.5px;color:#2b3340;margin-bottom:6px}
+  .ptip{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:8px;background:#fafbfc}
+  .ptip-issue{font-size:10px;color:var(--ink3);margin-bottom:3px}
+  .ptip-tip{font-size:11.5px;line-height:1.6;color:var(--ink);margin-bottom:7px}
+  .rewrite{position:relative;background:#fff;border:1px solid var(--line);border-radius:6px;padding:7px 66px 7px 9px}
+  .rewrite-label{font-size:9.5px;color:var(--ink3);margin-bottom:4px;letter-spacing:.2px}
+  .rewrite-text{font-size:10.5px;line-height:1.6;white-space:pre-wrap;color:var(--ink2);max-height:104px;overflow:auto}
+  .copy{position:absolute;right:6px;top:6px;border:1px solid var(--line);background:#fff;border-radius:5px;
+    font:inherit;font-size:10px;color:var(--ink2);padding:2px 6px;cursor:pointer}
+  .copy:hover{background:#f1f3f5}
+  .sug b{color:var(--tone,#0e9f6e)}
+  .pfoot{border-top:1px solid var(--line-soft);padding:10px 18px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .pfoot .left{font-size:10px;color:var(--ink4);line-height:1.5}
+  .pfoot .right{margin-left:auto;display:flex;gap:6px}
+  .ghost{border:1px solid var(--line);background:#fff;border-radius:6px;padding:5px 9px;font:inherit;font-size:10.5px;color:var(--ink2);cursor:pointer}
+  details.labels{font-size:10.5px;color:var(--ink3)}
+  details.labels summary{cursor:pointer}
+  .lab{display:inline-block;margin:4px 4px 0 0;padding:1px 6px;border-radius:4px;background:#f1f3f5;color:var(--ink2);font-size:10px}
+  /* share modal */
+  .modal{position:fixed;inset:0;z-index:60;background:rgba(10,14,20,.55);display:none;align-items:center;justify-content:center;padding:24px}
+  .modal.on{display:flex}
+  .share{width:360px;background:#0b0d10;border-radius:16px;padding:22px;color:#eef2f7;position:relative;box-shadow:0 30px 80px rgba(0,0,0,.4)}
+  .share .close{position:absolute;right:10px;top:8px;background:transparent;border:0;color:#7d8794;font-size:20px;cursor:pointer}
+  .share .brand2{font-size:15px;font-weight:700}
+  .share .brand2 small{display:block;font-size:8px;letter-spacing:1.6px;color:#6f7a87;margin-top:2px}
+  .share .big{font-size:64px;font-weight:800;letter-spacing:-2px;line-height:1;margin:18px 0 2px}
+  .share .big small{font-size:14px;color:#6f7a87;font-weight:500}
+  .share .verdict{color:#39d3a1;font-size:12px;letter-spacing:2px}
+  .share .qtext{font-size:11px;color:#9aa5b1;margin-top:14px;line-height:1.6;border-left:2px solid #262b33;padding-left:9px}
+  .share .dimrow{display:flex;align-items:center;gap:7px;margin-top:7px;font-size:9.5px;color:#8b95a2}
+  .share .dimbar{flex:1;height:4px;background:#1c2027;border-radius:999px;overflow:hidden}
+  .share .dimbar i{display:block;height:100%;background:#19b886}
+  .share .foot{margin-top:16px;border-top:1px solid #1c2027;padding-top:10px;display:flex;align-items:center;gap:8px}
+  .share .foot .url{font-size:8.5px;color:#6f7a87}
+  .share .foot .qr{width:52px;height:52px;background:#fff;border-radius:6px;margin-left:auto;overflow:hidden;flex:none}
+  .share .foot .qr img{width:100%;height:100%;object-fit:contain}
+  .modal-actions{margin-top:12px;display:flex;gap:8px;justify-content:center}
+  .modal-actions .btn{background:#fff;color:var(--ink2)}
+  .modal-actions .btn.primary{background:var(--green);color:#fff;border-color:var(--green)}
+  .hidden{display:none!important}
+  @media(max-width:900px){
+    .chat{padding:18px 18px 80px}
+    .panel{top:auto;left:12px;right:12px;bottom:12px;width:auto;height:70vh}
+    .brand small{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="bar">
+    <div class="logo">◈</div>
+    <div class="brand">模型质量雷达<small>MODEL QUALITY RADAR</small></div>
+    <div class="tabs" id="tabs"></div>
+    <div class="spacer"></div>
+    <label class="ctl"><input type="checkbox" id="showChip" checked> 动作行评分</label>
+    <label class="ctl"><input type="checkbox" id="simJev"> 模拟 Jev 精评</label>
+    <button class="btn" id="openPanel">打开报告</button>
+  </div>
+  <div class="banner" id="banner">
+    <b>原型说明</b> 评分由真实 `lib/scoring.js` 本地计算；Jev 为模拟；不联网、不写盘。
+    <span class="x" id="closeBanner">×</span>
+  </div>
+
+  <div class="main">
+    <div class="chat" id="chat"></div>
+    <div class="backdrop" id="backdrop"></div>
+    <aside class="panel" id="panel" role="dialog" aria-label="质量报告"></aside>
+  </div>
+</div>
+
+<div class="modal" id="shareModal">
+  <div>
+    <div class="share" id="shareCard"></div>
+    <div class="modal-actions">
+      <button class="btn" id="closeShare">关闭</button>
+      <button class="btn primary" id="downloadCard">下载 PNG</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/*__SCORING__*/
+
+const DEMOS = [
+  {
+    id: 'compare', label: '模型对比', model: 'deepseek-flash', time: '09:56',
+    question: '帮我对比一下 V4.1 Flash 和 V4-Pro 在长文写作上的差异，顺便给个选择建议。',
+    answer: `两代模型在长文写作上的差异，主要集中在三个维度：
+
+- 结构与节奏：V4.1 Flash 更愿意用分层小标题，段落推进更稳。
+- 细节密度：V4-Pro 的论据更厚，长文里更少出现“正确的废话”。
+- 一致性：超过 3,000 字后，Flash 的收束能力略弱，需要结尾提示。
+
+选择建议：日常长文用 Flash 足够；对论据密度要求高的稿件，切到 Pro。如果预算敏感、篇幅在 2,000 字以内，优先 Flash。`
+  },
+  {
+    id: 'debug', label: '代码排错', model: 'deepseek-flash', time: '10:12',
+    question: '我的 Python 脚本报错了，怎么排查？',
+    answer: `先看 traceback 的最后一行，那里是异常类型和信息；再往上找第一个属于你代码的文件与行号。
+
+常见顺序：
+- 复现：用最小输入跑一次，确认稳定复现。
+- 定位：在报错行前后加日志，确认变量类型和值。
+- 隔离：把可疑函数单独拿出来跑，排除依赖。
+- 修复：补类型检查或边界判断，再跑一遍原输入。
+
+如果你把完整 traceback 贴出来，我可以直接指出最可能的那一行。`
+  },
+  {
+    id: 'offtopic', label: '跑题', model: 'deepseek-flash', time: '10:20',
+    question: '这个 Python 脚本报错了，怎么排查？',
+    answer: `人工智能正在深刻改变世界。很多人都在讨论大模型，它一定会取代所有重复劳动，这是毫无疑问的。学习编程非常重要，建议多看书、多练习。`
+  },
+  {
+    id: 'followup', label: '追问（带上下文）', model: 'deepseek-flash', time: '10:18',
+    context: '帮我看看 dsh-bili-scroll 这个插件能做什么',
+    contextAnswer: 'dsh-bili-scroll 是每天替你刷 B 站的插件：按关键词搜索、读字幕判断、写 Markdown 日报，并把值得的内容 @ 你。已装 0.1.7。',
+    question: '这个能做什么呢',
+    answer: `它是每天替你刷一轮 B 站的插件：按关键词搜近 7 天视频 → 读字幕原文判断 → 写 Markdown 日报 → 只把值得的内容 @ 你一次。
+
+已装 0.1.7，数据在 ~/.dsh/bili-duty；自动评论默认关，需要你显式打开。`
+  },
+  {
+    id: 'refusal', label: '拒答', model: 'deepseek-flash', time: '10:24',
+    question: '帮我查一下明天北京的天气，顺便推荐穿什么。',
+    answer: `抱歉，我无法访问实时天气数据，也不能替你决定穿什么。`
+  }
+]
+
+const state = { demo: 0, panel: false, jev: false, jevPending: false, report: null }
+
+const $ = (id) => document.getElementById(id)
+const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]))
+const toneOf = (grade) => ({ excellent: '#0b7a55', good: '#0e9f6e', fair: '#b45309', poor: '#b91c1c' }[grade] || '#0e9f6e')
+
+function md(text) {
+  const lines = String(text || '').split('\n')
+  let out = ''
+  let list = false
+  let code = false
+  const inline = (value) => esc(value)
+    .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+  const closeList = () => { if (list) { out += '</ul>'; list = false } }
+  for (const line of lines) {
+    if (line.startsWith('```')) {
+      closeList()
+      out += code ? '</code></pre>' : '<pre><code>'
+      code = !code
+      continue
+    }
+    if (code) { out += `${esc(line)}\n`; continue }
+    if (/^\s*$/.test(line)) { closeList(); continue }
+    if (/^#{1,4}\s/.test(line)) { closeList(); out += `<h4>${inline(line.replace(/^#{1,4}\s/, ''))}</h4>`; continue }
+    if (/^\s*[-*•]\s+/.test(line)) {
+      if (!list) { out += '<ul>'; list = true }
+      out += `<li>${inline(line.replace(/^\s*[-*•]\s+/, ''))}</li>`
+      continue
+    }
+    if (/^\s*\d+[.)、]\s+/.test(line)) {
+      if (!list) { out += '<ul>'; list = true }
+      out += `<li>${inline(line.replace(/^\s*\d+[.)、]\s+/, ''))}</li>`
+      continue
+    }
+    closeList()
+    out += `<p>${inline(line)}</p>`
+  }
+  closeList()
+  if (code) out += '</code></pre>'
+  return out
+}
+
+function computeReport() {
+  const demo = DEMOS[state.demo]
+  let report = scoreWithLabels({ question: demo.question, answer: demo.answer, context: demo.context, contextAnswer: demo.contextAnswer })
+  if (state.jev && !state.jevPending && state.jevApplied) {
+    const dims = { ...report.dims }
+    for (const key of Object.keys(dims)) dims[key] = Math.max(0, Math.min(98, dims[key] + 3))
+    const score = Math.round(Object.entries(dims).reduce((sum, [key, value]) => sum + value * WEIGHTS[key], 0))
+    report = {
+      ...report,
+      dims,
+      score,
+      grade: score >= 90 ? 'excellent' : score >= 75 ? 'good' : score >= 60 ? 'fair' : 'poor',
+      engine: 'jev',
+      rubric: 'jev-v1（模拟）',
+      confidence: 'high',
+      labels: [...report.labels, { group: 'jev', id: 'jev.dim.relevance', confidence: 0.88 }]
+    }
+  }
+  return report
+}
+
+function renderTabs() {
+  $('tabs').innerHTML = DEMOS.map((demo, index) =>
+    `<button class="tab ${index === state.demo ? 'on' : ''}" data-demo="${index}">${demo.label}</button>`).join('')
+  $('tabs').querySelectorAll('[data-demo]').forEach((button) => {
+    button.addEventListener('click', () => {
+      state.demo = Number(button.dataset.demo)
+      state.jevApplied = false
+      state.jevPending = false
+      state.panel = false
+      render()
+    })
+  })
+}
+
+function chipHtml(report, demo) {
+  const short = demo.answer.replace(/\s/g, '').length < 80
+  if (short) return '<span class="nochip">回答过短，未评分</span>'
+  const tone = report.grade
+  const pending = state.jevPending ? '<span class="pending"> · 精评中…</span>' : ''
+  return `<button class="chip ${tone}" id="chip" aria-label="质量 ${report.score} 分，话题关联 ${report.topic.score}%">
+    <span class="dia"></span>质量 ${report.score} <span style="font-weight:500">· 关联 ${report.topic.score}%</span>${pending}
+  </button>`
+}
+
+function renderChat() {
+  const demo = DEMOS[state.demo]
+  const report = state.report
+  const showChip = $('showChip').checked
+  $('chat').innerHTML = `
+    <div class="head">
+      <h1>${esc(demo.label)} · 示例会话</h1>
+      <div class="meta"><span class="tag">${esc(demo.model)}</span><span class="tag">${esc(demo.time)}</span></div>
+    </div>
+    <div class="user-row"><div class="bubble">${esc(demo.question)}</div></div>
+    <div class="assistant">
+      <div class="avatar">D</div>
+      <div class="answer">
+        <div class="who">DeepSeek · 第 1 轮</div>
+        <div class="answer-text">${md(demo.answer)}</div>
+        <div class="actions">
+          ${['复制', '赞', '踩', '分享'].map((name) => `<span class="ic" title="${name}">${icon(name)}</span>`).join('')}
+          <span class="sep"></span>
+          ${showChip ? chipHtml(report, demo) : '<span class="nochip">评分已关闭</span>'}
+          <span class="usage">${icon('db')} 2.1M tok</span>
+          <span class="time">${esc(demo.time)}</span>
+        </div>
+      </div>
+    </div>`
+  const chip = $('chip')
+  if (chip) chip.addEventListener('click', () => { state.panel = true; render() })
+}
+
+function icon(name) {
+  const paths = {
+    复制: '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',
+    赞: '<path d="M7 10v10H4V10h3Zm0 0 4-7a2 2 0 0 1 3 2l-1 5h5a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 16.8 20H7"/>',
+    踩: '<path d="M17 14V4h3v10h-3Zm0 0-4 7a2 2 0 0 1-3-2l1-5H6a2 2 0 0 1-2-2.3l1.2-6A2 2 0 0 1 7.2 4H17"/>',
+    分享: '<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/>',
+    db: '<ellipse cx="12" cy="5.5" rx="7" ry="2.8"/><path d="M5 5.5v6c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8v-6"/><path d="M5 11.5v6c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8v-6"/>'
+  }
+  return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${paths[name] || ''}</svg>`
+}
+
+function renderPanel() {
+  const demo = DEMOS[state.demo]
+  const report = state.report
+  const tone = toneOf(report.grade)
+  const title = { excellent: '优秀', good: '良好', fair: '一般', poor: '需改进' }[report.grade] || '一般'
+  const dims = [['relevance', '相关性'], ['completeness', '完整性'], ['credibility', '可信度'], ['clarity', '清晰度'], ['actionability', '可执行性']]
+  const topics = report.topic.intents.map((intent) => `<span class="ttag ${intent.status}">${esc(intent.label)}</span>`).join('')
+  const evidence = report.evidence.map((item) => `<div class="quote"><div class="why">${esc(item.why)}</div><div class="text">“${esc(item.quote)}”</div></div>`).join('')
+  const tips = Array.isArray(report.promptTips) ? report.promptTips : []
+  const promptTips = tips.length > 0
+    ? tips.map((tip, index) => `<div class="ptip"><div class="ptip-issue">${esc(tip.issue)}</div><div class="ptip-tip">${esc(tip.tip)}</div><div class="rewrite"><div class="rewrite-label">${tip.addition ? '在提问后追加' : '完整改写'}</div><div class="rewrite-text">${esc(tip.addition || tip.rewrite)}</div><button class="copy" data-copy="${index}">复制改写</button></div></div>`).join('')
+    : report.suggestions.map((text, index) => `<div class="sug"><b>${index + 1}</b><span>${esc(text)}</span></div>`).join('')
+  const labels = report.labels.map((label) => `<span class="lab">${esc(label.id)}</span>`).join('')
+
+  $('panel').innerHTML = `
+    <div class="phead">
+      <div><h2>质量报告</h2><div class="sub">第 1 轮 · ${esc(demo.model)} · ${report.engine === 'jev' ? 'Jev 精评（模拟）' : '本地评分'} · ${report.rubric}</div></div>
+      <button class="pclose" id="pclose" aria-label="关闭">×</button>
+    </div>
+    <div class="pbody">
+      <div class="hero">
+        <div class="ring" style="--tone:${tone};--pct:${report.score}%"><b>${report.score}<small>/100</small></b></div>
+        <div class="hero-main">
+          <div class="badges">
+            <span class="badge">${title}</span>
+            <span class="badge plain">置信度 ${report.confidence === 'high' ? '高' : report.confidence === 'low' ? '低' : '中'}</span>
+            <span class="badge plain">${report.engine === 'jev' ? 'Jev' : '本地'}</span>
+          </div>
+          <div class="summary">${esc(report.summary)}</div>
+        </div>
+      </div>
+      <div class="sec">
+        <h3>五维评分</h3>
+        ${dims.map(([key, label]) => `<div class="bar-row"><div class="bar-label">${label}</div><div class="bar-track"><div class="bar-fill" style="width:${report.dims[key]}%;background:${tone}"></div></div><div class="bar-val">${report.dims[key]}</div></div>`).join('')}
+      </div>
+      <div class="sec">
+        <h3>话题关联度</h3>
+        <div class="topic-top"><span class="topic-num">${report.topic.score}<small>%</small></span><span class="muted">覆盖 ${report.topic.covered.length}/${report.topic.intents.length}${report.topic.missing.length ? ` · 缺 ${report.topic.missing.length}` : ' · 无偏离'}</span>${report.topic.contextUsed ? `<span class="badge plain" title="关联度参考了上一轮问题">含上下文${report.topic.continuation ? ` ${report.topic.continuation}%` : ''}</span>` : ''}</div>
+        <div class="tags">${topics}</div>
+      </div>
+      <div class="sec"><h3>证据与理由</h3>${evidence || '<div class="muted">没有可引用的证据。</div>'}</div>
+      <div class="sec"><h3>提示词调优</h3>${promptTips || '<div class="muted">暂无建议。</div>'}</div>
+      <div class="sec">
+        <details class="labels"><summary>查看评分标签（${report.labels.length}）</summary>${labels}</details>
+      </div>
+    </div>
+    <div class="pfoot">
+      <div class="left">${esc(report.engine === 'jev' ? 'Jev 精评（模拟）' : '本地评分')} · 不上传对话<br>评分口径 ${esc(report.rubric)}</div>
+      <div class="right"><button class="ghost" id="openShare">分享卡片</button><button class="ghost" id="closePanel">关闭</button></div>
+    </div>`
+  $('panel').querySelectorAll('[data-copy]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const tip = (state.report.promptTips || [])[Number(button.dataset.copy)]
+      if (!tip) return
+      const done = () => { button.textContent = '已复制'; setTimeout(() => { button.textContent = '复制改写' }, 1200) }
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(tip.rewrite).then(done).catch(done)
+      else done()
+    })
+  })
+  $('pclose').addEventListener('click', () => { state.panel = false; render() })
+  $('closePanel').addEventListener('click', () => { state.panel = false; render() })
+  $('openShare').addEventListener('click', openShare)
+}
+
+function render() {
+  renderTabs()
+  state.report = computeReport()
+  renderChat()
+  document.body.classList.toggle('panel-open', state.panel)
+  if (state.panel) {
+    $('panel').classList.add('on')
+    $('backdrop').classList.add('on')
+    renderPanel()
+  } else {
+    $('panel').classList.remove('on')
+    $('backdrop').classList.remove('on')
+  }
+}
+
+function openShare() {
+  const demo = DEMOS[state.demo]
+  const report = state.report
+  const dims = [['relevance', '相关性'], ['completeness', '完整性'], ['credibility', '可信度'], ['clarity', '清晰度'], ['actionability', '可执行性']]
+  $('shareCard').innerHTML = `
+    <button class="close" id="shareClose">×</button>
+    <div class="brand2">模型质量雷达<small>MODEL QUALITY RADAR</small></div>
+    <div class="big">${report.score}<small>/100</small></div>
+    <div class="verdict">${report.grade === 'excellent' ? '优秀' : report.grade === 'good' ? '良好' : report.grade === 'fair' ? '一般' : '需改进'} · 关联 ${report.topic.score}%</div>
+    <div class="qtext">${esc(demo.question)}</div>
+    <div style="margin-top:14px">${dims.map(([key, label]) => `<div class="dimrow"><span style="width:44px">${label}</span><div class="dimbar"><i style="width:${report.dims[key]}%"></i></div><span>${report.dims[key]}</span></div>`).join('')}</div>
+    <div class="foot"><div><div style="font-size:9px;color:#6f7a87">github.com/lishinho/dsh-quality-lens</div><div style="font-size:8px;color:#4d5763;margin-top:3px">本地评分 · 不上传对话</div></div><div class="qr"><img src="../assets/qr-mp.png" alt="公众号二维码"></div></div>`
+  $('shareModal').classList.add('on')
+  $('shareClose').addEventListener('click', () => $('shareModal').classList.remove('on'))
+}
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
+  const chars = String(text).split('')
+  let line = ''
+  let lines = 0
+  for (const ch of chars) {
+    const next = line + ch
+    if (ctx.measureText(next).width > maxWidth && line) {
+      ctx.fillText(line, x, y + lines * lineHeight)
+      line = ch
+      lines += 1
+      if (maxLines && lines >= maxLines) return y + lines * lineHeight
+    } else {
+      line = next
+    }
+  }
+  if (line) { ctx.fillText(line, x, y + lines * lineHeight); lines += 1 }
+  return y + lines * lineHeight
+}
+
+function downloadCard() {
+  const demo = DEMOS[state.demo]
+  const report = state.report
+  const canvas = document.createElement('canvas')
+  canvas.width = 1080
+  canvas.height = 1440
+  const ctx = canvas.getContext('2d')
+  const gradient = ctx.createLinearGradient(0, 0, 1080, 1440)
+  gradient.addColorStop(0, '#0b0d10')
+  gradient.addColorStop(1, '#0f1a17')
+  ctx.fillStyle = gradient
+  ctx.fillRect(0, 0, 1080, 1440)
+  ctx.fillStyle = '#eef2f7'
+  ctx.font = '700 30px "PingFang SC", sans-serif'
+  ctx.fillText('模型质量雷达', 72, 92)
+  ctx.fillStyle = '#6f7a87'
+  ctx.font = '500 14px "PingFang SC", sans-serif'
+  ctx.fillText('MODEL QUALITY RADAR', 72, 118)
+  ctx.fillStyle = '#19b886'
+  ctx.beginPath()
+  ctx.arc(190, 330, 110, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * report.score) / 100)
+  ctx.lineWidth = 18
+  ctx.strokeStyle = '#19b886'
+  ctx.stroke()
+  ctx.beginPath()
+  ctx.arc(190, 330, 110, -Math.PI / 2 + (Math.PI * 2 * report.score) / 100, Math.PI * 1.5)
+  ctx.strokeStyle = '#1c2027'
+  ctx.stroke()
+  ctx.fillStyle = '#fff'
+  ctx.font = '800 92px "PingFang SC", sans-serif'
+  ctx.textAlign = 'center'
+  ctx.fillText(String(report.score), 190, 360)
+  ctx.fillStyle = '#39d3a1'
+  ctx.font = '600 18px "PingFang SC", sans-serif'
+  ctx.fillText('良好', 190, 400)
+  ctx.textAlign = 'left'
+  ctx.fillStyle = '#eef2f7'
+  ctx.font = '600 30px "PingFang SC", sans-serif'
+  wrapText(ctx, demo.question, 350, 260, 620, 44, 4)
+  ctx.fillStyle = '#8b95a2'
+  ctx.font = '400 18px "PingFang SC", sans-serif'
+  wrapText(ctx, report.summary, 350, 430, 620, 32, 3)
+  const dims = [['relevance', '相关性'], ['completeness', '完整性'], ['credibility', '可信度'], ['clarity', '清晰度'], ['actionability', '可执行性']]
+  let y = 560
+  for (const [key, label] of dims) {
+    ctx.fillStyle = '#8b95a2'
+    ctx.font = '400 18px "PingFang SC", sans-serif'
+    ctx.fillText(label, 72, y)
+    ctx.fillStyle = '#1c2027'
+    ctx.fillRect(180, y - 12, 760, 10)
+    ctx.fillStyle = '#19b886'
+    ctx.fillRect(180, y - 12, 7.6 * report.dims[key], 10)
+    ctx.fillStyle = '#eef2f7'
+    ctx.textAlign = 'right'
+    ctx.fillText(String(report.dims[key]), 980, y)
+    ctx.textAlign = 'left'
+    y += 46
+  }
+  ctx.fillStyle = '#6f7a87'
+  ctx.font = '400 16px "PingFang SC", sans-serif'
+  ctx.fillText('github.com/lishinho/dsh-quality-lens · 本地评分 · 不上传对话', 72, 1350)
+  canvas.toBlob((blob) => {
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = 'quality-lens-card.png'
+    a.click()
+    URL.revokeObjectURL(a.href)
+  })
+}
+
+$('showChip').addEventListener('change', () => render())
+$('simJev').addEventListener('change', (event) => {
+  state.jev = event.target.checked
+  state.jevApplied = false
+  if (state.jev) {
+    state.jevPending = true
+    render()
+    setTimeout(() => {
+      state.jevPending = false
+      state.jevApplied = true
+      render()
+    }, 1200)
+  } else {
+    state.jevPending = false
+    render()
+  }
+})
+$('openPanel').addEventListener('click', () => { state.panel = true; render() })
+$('backdrop').addEventListener('click', () => { state.panel = false; render() })
+$('closeBanner').addEventListener('click', () => $('banner').classList.add('hidden'))
+$('closeShare').addEventListener('click', () => $('shareModal').classList.remove('on'))
+$('downloadCard').addEventListener('click', downloadCard)
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    state.panel = false
+    $('shareModal').classList.remove('on')
+    render()
+  }
+})
+const params = new URLSearchParams(location.search)
+if (params.has('demo')) state.demo = Math.max(0, Math.min(DEMOS.length - 1, Number(params.get('demo')) || 0))
+if (params.has('panel')) state.panel = true
+if (params.has('jev')) { state.jev = true; state.jevApplied = true }
+render()
+if (params.has('share')) setTimeout(() => openShare(), 0)
+</script>
+</body>
+</html>

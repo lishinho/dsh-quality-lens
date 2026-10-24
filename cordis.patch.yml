@@ -1,0 +1,7 @@
+# 质量雷达 bundle patch.
+#
+# The profile applies this layer when it lists the bundle. The row points at
+# the bare package name so the host Loader resolves the installed package.
+- insert:
+    - id: quality-lens
+      name: dsh-quality-lens

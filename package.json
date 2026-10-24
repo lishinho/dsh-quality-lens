@@ -1,0 +1,69 @@
+{
+  "name": "dsh-quality-lens",
+  "version": "0.1.0",
+  "description": "为每个 DeepSeek Harness 回答做质量与话题关联体检，并给出可复制的提示词改进建议。只观测不改写，默认本地评分，可选 Jev 精评。",
+  "type": "module",
+  "main": "lib/host.js",
+  "icon": "icon.svg",
+  "exports": {
+    ".": "./lib/host.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "assets",
+    "icon.svg",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE",
+    "screenshots.json"
+  ],
+  "engines": {
+    "node": ">=22",
+    "dsh": ">=0.2.1-rc.2 <0.3.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-chat"
+      ]
+    }
+  },
+  "peerDependencies": {
+    "react": "^18.2.0"
+  },
+  "scripts": {
+    "test": "node --test test/scoring.test.mjs test/host.test.mjs test/client-bundle.test.mjs test/labels-jev.test.mjs",
+    "demo": "node scripts/demo.mjs",
+    "samples": "node scripts/extract-samples.mjs",
+    "calibrate": "node scripts/calibrate.mjs",
+    "label": "node scripts/make-labeling-page.mjs",
+    "apply-labels": "node scripts/apply-labels.mjs",
+    "prototype": "node prototype/build.mjs"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "quality",
+    "evaluation",
+    "observability",
+    "jev",
+    "labels"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lishinho/dsh-quality-lens.git"
+  },
+  "homepage": "https://github.com/lishinho/dsh-quality-lens#readme",
+  "bugs": {
+    "url": "https://github.com/lishinho/dsh-quality-lens/issues"
+  },
+  "author": "lishinho"
+}
