@@ -87,12 +87,13 @@ dsh plugin --profile web add github:lishinho/dsh-quality-lens
 dsh plugin --profile web add dsh-quality-lens
 ```
 
-**本地 tgz**
+**预构建 tarball（无需构建）**
 
 ```sh
-npm pack    # 或 pnpm pack
-dsh plugin add ./dsh-quality-lens-0.1.0.tgz
+dsh plugin --profile web add https://github.com/lishinho/dsh-quality-lens/releases/latest/download/dsh-quality-lens.tgz
 ```
+
+本地打包：`pnpm pack` → `dsh plugin add ./dsh-quality-lens-0.1.0.tgz`
 
 安装后发一条 **≥80 字**的回答，动作行会出现 Chip；确认 / 寒暄类消息（「可以了 我试试」）不会评分。
 
@@ -126,7 +127,7 @@ dsh plugin add ./dsh-quality-lens-0.1.0.tgz
 - 失败 / 超时 / 无 key：自动回退本地标签分，Chip 先在本地分上显示，精评回来再升级；
 - **隐私**：Jev 是唯一会联网的路径，只发送当前问题 + 回答；默认关闭。
 
-技术细节见 [标签评分与 Jev 方案](docs/label-scoring-and-jev.md)。
+技术细节见 [标签评分与 Jev 方案](https://github.com/lishinho/dsh-quality-lens/blob/main/docs/label-scoring-and-jev.md)。
 
 ---
 
