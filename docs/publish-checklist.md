@@ -28,10 +28,24 @@ PNPM="/Applications/DeepSeek Harness.app/Contents/Resources/runtime/primary-runt
 
 **B. GitHub Actions（推荐，不用本机 npm）**
 
-1. npm 账号生成 token（Automation token）；
-2. GitHub 仓库 Settings → Secrets → Actions → 新建 `NPM_TOKEN`；
-3. Actions → `publish-npm` → Run workflow；
-4. 验证：`https://registry.npmjs.org/dsh-quality-lens` 出现 0.1.0。
+> 注意：npm 已在 2025-11-05 禁用 classic / automation token，现在只能创建
+> **Granular Access Token**；CI 发布还需勾选 **Bypass 2FA**。
+> 参考：[npm security update](https://github.blog/changelog/2025-11-05-npm-security-update-classic-token-creation-disabled-and-granular-token-changes/)
+
+1. 打开 https://www.npmjs.com/settings/~/tokens → **Generate New Token** → **Granular Access Token**；
+2. Name 填 `dsh-quality-lens-ci`；Expiration 选 90 天（写权限 token 上限 90 天）；
+3. Packages and scopes → **Read and write** → 选 **All packages**（首次发布包还不存在，不能只选单包）；
+4. 勾选 **Bypass 2FA**（非交互 CI 必须）；
+5. 生成后复制一次 token（`npm_...`，只显示一次）；
+6. GitHub 仓库 → Settings → Secrets and variables → Actions → **New repository secret**：
+   Name `NPM_TOKEN`，Value 粘贴 token；
+7. Actions → `publish-npm` → **Run workflow**（或 `gh workflow run publish-npm -R lishinho/dsh-quality-lens`）；
+8. 验证：`https://registry.npmjs.org/dsh-quality-lens` 出现 0.1.0。
+
+发布成功后可以：
+
+- 把 granular token 缩到只允许 `dsh-quality-lens`；
+- 或改用 npm **Trusted Publishing (OIDC)**，去掉长期 token。
 
 发布后把 README 的“发布后”替换成正式命令（已经是 `dsh plugin add dsh-quality-lens`）。
 
