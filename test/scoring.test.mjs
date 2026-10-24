@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { scoreAnswer, scoreWithLabels, gradeLabel, isSubstantiveQuestion, RUBRIC_VERSION, DIMENSIONS, WEIGHTS } from '../lib/scoring.js'
+import { scoreAnswer, scoreWithLabels, gradeLabel, isSubstantiveQuestion, redactSecrets, RUBRIC_VERSION, DIMENSIONS, WEIGHTS } from '../lib/scoring.js'
 
 const QUESTION = '帮我对比一下 V4.1 Flash 和 V4-Pro 在长文写作上的差异，顺便给个选择建议。'
 const GOOD_ANSWER = `两代模型在长文写作上的差异，主要集中在三个维度：
@@ -127,4 +127,14 @@ test('a restated follow-up gets continuation credit', () => {
   assert.equal(report.topic.contextUsed, true)
   assert.ok(report.topic.continuation > 0)
   assert.ok(report.topic.score >= 60)
+})
+
+test('credential-shaped strings are redacted from reports and skipped as prompts', () => {
+  const token = 'npm_' + 'x'.repeat(36)
+  assert.ok(redactSecrets(`token: ${token}`).includes('[REDACTED]'))
+  assert.equal(isSubstantiveQuestion(`token: ${token}`), false)
+  assert.equal(isSubstantiveQuestion(`这个 token 还有效吗？`), true)
+  const report = scoreWithLabels({ question: `token: ${token}`, answer: '收到，旧 token 已经删掉了。' })
+  assert.equal(JSON.stringify(report).includes(token), false)
+  assert.equal(report.stats.questionPreview.includes(token), false)
 })
