@@ -8,13 +8,14 @@
 - [x] 公开仓库 `lishinho/dsh-quality-lens`，默认分支 `main`
 - [x] topics：`dsh-plugin`、`deepseek-harness`、`cordis`、`prompt-engineering`、`observability`、`quality`
 - [x] GitHub Actions `test` 绿（31 条测试）
-- [x] GitHub Release `v0.1.0`，附预构建 `dsh-quality-lens.tgz`
+- [x] GitHub Release `v0.1.0` / `v0.1.2`，附预构建 `dsh-quality-lens.tgz`
+- [x] npm `dsh-quality-lens@0.1.2`（latest）
 - [x] `screenshots.json` + 3 张原型截图（README 已说明原型）
 - [x] awesome 条目文件 `docs/awesome-entry.yml`
 
 ## 1. npm 发布（已完成）
 
-> 2026-10-24 已通过 GitHub Actions `publish-npm` 发布 **dsh-quality-lens@0.1.0**。
+> 2026-10-24 已通过 GitHub Actions `publish-npm` 发布 **dsh-quality-lens@0.1.2**（含凭证打码安全补丁）。
 > npm 对新包首次自动化发布会先进入 staged 队列；本次 registry 已完成发布（latest=0.1.0）。
 
 如果以后要换 token，两条路：
