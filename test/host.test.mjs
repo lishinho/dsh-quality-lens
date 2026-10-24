@@ -343,3 +343,33 @@ test('a vague follow-up is scored against the previous turn in the same session'
     fs.rmSync(home, { recursive: true, force: true })
   }
 })
+
+test('legacy reports containing a token are sanitized on load', () => {
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'quality-lens-'))
+  const previous = process.env.DSH_HOME
+  process.env.DSH_HOME = home
+  const token = 'npm_' + 'x'.repeat(36)
+  try {
+    const dir = path.join(home, 'quality-lens')
+    fs.mkdirSync(dir, { recursive: true })
+    const record = {
+      v: 1, messageId: 'msg_secret', sessionId: 's', at: new Date().toISOString(),
+      score: 50, grade: 'poor', dims: { relevance: 50, completeness: 50, credibility: 50, clarity: 50, actionability: 50 },
+      topic: { score: 0, intents: [{ label: `token: ${token}`, status: 'missing' }], covered: [], partial: [], missing: [], driftQuotes: [] },
+      summary: 'x', evidence: [], suggestions: [], promptTips: [], confidence: 'low', rubric: 'labels-v1', stats: { questionPreview: `token: ${token}` },
+    }
+    fs.writeFileSync(path.join(dir, 'reports.jsonl'), `${JSON.stringify(record)}\n`, 'utf8')
+    const ctx = makeCtx()
+    apply(ctx, { minReplyChars: 10 })
+    const { res, response } = makeHarness()
+    routeFor(ctx, '/report').handler({ url: '/api/dsh-quality-lens/report?messageId=msg_secret', method: 'GET' }, res)
+    assert.equal(response.status, 200)
+    assert.equal(response.body.includes(token), false)
+    assert.ok(response.body.includes('[REDACTED]'))
+    assert.equal(fs.readFileSync(path.join(dir, 'reports.jsonl'), 'utf8').includes(token), false)
+  } finally {
+    if (previous === undefined) delete process.env.DSH_HOME
+    else process.env.DSH_HOME = previous
+    fs.rmSync(home, { recursive: true, force: true })
+  }
+})

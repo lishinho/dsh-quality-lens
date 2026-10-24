@@ -152,7 +152,7 @@ node scripts/calibrate.mjs --in calibration/samples.labeled.jsonl
 - 默认引擎在本地完成，**不调用模型、不联网**；
 - 报告只存本机 `$DSH_HOME/quality-lens/reports.jsonl`，删目录即清空；
 - 无遥测；Jev 模式需显式配置 key，且仅发送当前问答；
-- 报告、证据、提示词建议里的凭证样式字符串（`npm_` / `ghp_` / `sk-` 等）会自动打码；旧报告在加载时也会被清洗。
+- 报告、证据、提示词建议、Jev 请求里的凭证样式字符串（`npm_` / `ghp_` / `sk-` 等）会自动打码；旧报告在加载时也会被清洗。
 - 校准只读你自己的本机会话，不上传。
 
 ---
@@ -168,7 +168,7 @@ node scripts/calibrate.mjs --in calibration/samples.labeled.jsonl
 ## 开发
 
 ```sh
-node --test test/scoring.test.mjs test/host.test.mjs test/client-bundle.test.mjs test/labels-jev.test.mjs   # 32 tests
+node --test test/scoring.test.mjs test/host.test.mjs test/client-bundle.test.mjs test/labels-jev.test.mjs   # 33 tests
 node scripts/demo.mjs           # 打印样本评分
 node prototype/build.mjs        # 重建自包含原型
 ```

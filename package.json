@@ -1,6 +1,6 @@
 {
   "name": "dsh-quality-lens",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "为每个 DeepSeek Harness 回答做质量与话题关联体检，并给出可复制的提示词改进建议。只观测不改写，默认本地评分，可选 Jev 精评。",
   "type": "module",
   "main": "lib/host.js",
