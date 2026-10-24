@@ -12,9 +12,12 @@
 - [x] `screenshots.json` + 3 张原型截图（README 已说明原型）
 - [x] awesome 条目文件 `docs/awesome-entry.yml`
 
-## 1. npm 发布（当前阻塞：未登录）
+## 1. npm 发布（已完成）
 
-本机没有 npm 登录态，`pnpm whoami` 返回 `UNAUTHORIZED`。两条路选一条：
+> 2026-10-24 已通过 GitHub Actions `publish-npm` 发布 **dsh-quality-lens@0.1.0**。
+> npm 对新包首次自动化发布会先进入 staged 队列；本次 registry 已完成发布（latest=0.1.0）。
+
+如果以后要换 token，两条路：
 
 **A. 本机登录后发布（需要能跑 pnpm/npm 的终端）**
 
@@ -107,7 +110,7 @@ DSH 不内置索引源。如果想在官方 **Plugins → Discover** 里出现�
 | 事项 | 状态 | 需要 |
 |---|---|---|
 | GitHub 仓库/Release | ✅ | — |
-| npm 发布 | ⏳ | npm token 或本机登录 |
+| npm 发布 | ✅ `dsh-quality-lens@0.1.0` | — |
 | awesome PR | ⏳ | 等到 2026-10-25 12:47 CST |
 | dshmarket | ⏳ | 等 awesome 合并 + nightly |
 | 真实安装截图/GIF | ⏳ | 本机装好后录制；当前用原型截图并已标注 |

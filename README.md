@@ -2,6 +2,7 @@
 
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![dsh](https://img.shields.io/badge/dsh-%3E%3D0.2.1--rc.2-8A2BE2)](https://github.com/deepseek-ai/DeepSeek-Harness)
+[![npm](https://img.shields.io/npm/v/dsh-quality-lens)](https://www.npmjs.com/package/dsh-quality-lens)
 [![tests](https://github.com/lishinho/dsh-quality-lens/actions/workflows/test.yml/badge.svg)](https://github.com/lishinho/dsh-quality-lens/actions/workflows/test.yml)
 
 > 给每个 AI 回答做一次体检：动作行显示 **质量分 + 话题关联度**，点开是带证据的质检报告。
@@ -80,7 +81,7 @@
 2. 来源选 **本地目录**，选择本仓库根目录（包含 `package.json`）；
 3. 重启 / 刷新 DSH。
 
-**GitHub / npm（发布后）**
+**GitHub / npm**
 
 ```sh
 dsh plugin --profile web add github:lishinho/dsh-quality-lens

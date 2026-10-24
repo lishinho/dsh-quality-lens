@@ -16,6 +16,9 @@
 ## 安装
 
 ```sh
+# npm
+dsh plugin --profile web add dsh-quality-lens
+
 # GitHub
 dsh plugin --profile web add github:lishinho/dsh-quality-lens
 
@@ -34,6 +37,5 @@ dsh plugin --profile web add https://github.com/lishinho/dsh-quality-lens/releas
 ## 已知限制
 
 - 分享卡、历史/趋势、Jev 影子模式仍在规划中；
-- npm 包暂未发布（可直接从 GitHub/tarball 安装）；
 - 截图来自交互原型，实际安装后的 Chip/报告与之一致；
 - 评分是启发式/分类判断，不是事实核查；目标 MAE ≤ 8（需用真实样本校准）。
