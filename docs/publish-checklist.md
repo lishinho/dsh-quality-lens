@@ -53,11 +53,12 @@ PNPM="/Applications/DeepSeek Harness.app/Contents/Resources/runtime/primary-runt
 
 发布后把 README 的“发布后”替换成正式命令（已经是 `dsh plugin add dsh-quality-lens`）。
 
-## 2. awesome-dsh-plugin PR（等 1 天）
+## 2. awesome-dsh-plugin PR（已提交，等维护者合并）
 
 **为什么等**：列表 CI 检查仓库创建满 1 天；现在提会被拒。
 
-最早：**2026-10-25 12:47 CST**。
+**PR：** https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/9289  
+**状态：** PR check 已通过（13m8s），mergeable，仅 1 个文件，等维护者合并。
 
 ```sh
 gh repo fork awesome-dsh-plugin/awesome-dsh-plugin --clone=true
@@ -112,6 +113,6 @@ DSH 不内置索引源。如果想在官方 **Plugins → Discover** 里出现�
 |---|---|---|
 | GitHub 仓库/Release | ✅ | — |
 | npm 发布 | ✅ `dsh-quality-lens@0.1.0` | — |
-| awesome PR | ⏳ | 等到 2026-10-25 12:47 CST |
-| dshmarket | ⏳ | 等 awesome 合并 + nightly |
+| awesome PR | ✅ 已提交 #9289，check 通过 | 等维护者合并 |
+| dshmarket | ⏳ | 等 #9289 合并 + nightly |
 | 真实安装截图/GIF | ⏳ | 本机装好后录制；当前用原型截图并已标注 |
