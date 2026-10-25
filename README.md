@@ -57,11 +57,11 @@
 
 ## 界面预览
 
-> 以下为交互原型截图（和插件共用同一套评分引擎与布局），实际安装后动作行 Chip 与报告面板一致。
+> 动作行 Chip 为你本机的真机截图（0.1.0，示例分数来自 token 边界样本）；报告与追问场景为交互原型，实际安装后布局一致。
 
-| 动作行 Chip | 追问场景：含上下文 |
+| 动作行 Chip（真机） | 追问场景：含上下文（原型） |
 |---|---|
-| ![动作行](assets/screenshots/chat.png) | ![追问](assets/screenshots/followup.png) |
+| ![动作行](assets/screenshots/real-chip.png) | ![追问](assets/screenshots/followup.png) |
 
 **报告面板**：五维、话题关联、证据、提示词调优（可复制改写）：
 
