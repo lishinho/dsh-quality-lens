@@ -12,6 +12,8 @@
 - [x] npm `dsh-quality-lens@0.1.2`（latest）
 - [x] `screenshots.json` + 3 张原型截图（README 已说明原型）
 - [x] awesome 条目文件 `docs/awesome-entry.yml`
+- [x] awesome PR #9289 已合并（2026-10-26 17:01 UTC）
+- [x] dsh-plugin-catalog `2026.1027.11136` 已收录 `dsh-quality-lens@0.1.2`
 
 ## 1. npm 发布（已完成）
 
@@ -58,7 +60,7 @@ PNPM="/Applications/DeepSeek Harness.app/Contents/Resources/runtime/primary-runt
 **为什么等**：列表 CI 检查仓库创建满 1 天；现在提会被拒。
 
 **PR：** https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/9289  
-**状态：** PR check 已通过（13m8s），mergeable，仅 1 个文件，等维护者合并。
+**状态：** 已合并。条目页：https://awesome-dsh-plugin.com/p/lishinho/dsh-quality-lens/
 
 ```sh
 gh repo fork awesome-dsh-plugin/awesome-dsh-plugin --clone=true
@@ -113,6 +115,6 @@ DSH 不内置索引源。如果想在官方 **Plugins → Discover** 里出现�
 |---|---|---|
 | GitHub 仓库/Release | ✅ | — |
 | npm 发布 | ✅ `dsh-quality-lens@0.1.0` | — |
-| awesome PR | ✅ 已提交 #9289，check 通过 | 等维护者合并 |
-| dshmarket | ⏳ | 等 #9289 合并 + nightly |
-| 真实安装截图/GIF | ⏳ | 本机装好后录制；当前用原型截图并已标注 |
+| awesome PR | ✅ #9289 已合并（2026-10-26 17:01 UTC） | — |
+| dshmarket | ✅ catalog 已收录（2026.1027.11136） | 刷新 dshmarket 即可看到 |
+| 真实报告截图/GIF | ⏳ | 当前 Chip 用真机图，报告/追问用原型并已标注 |

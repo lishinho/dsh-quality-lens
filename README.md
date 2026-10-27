@@ -3,11 +3,13 @@
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![dsh](https://img.shields.io/badge/dsh-%3E%3D0.2.1--rc.2-8A2BE2)](https://github.com/deepseek-ai/DeepSeek-Harness)
 [![npm](https://img.shields.io/npm/v/dsh-quality-lens)](https://www.npmjs.com/package/dsh-quality-lens)
+[![awesome](https://awesome.re/badge.svg)](https://awesome-dsh-plugin.com/p/lishinho/dsh-quality-lens/)
 [![tests](https://github.com/lishinho/dsh-quality-lens/actions/workflows/test.yml/badge.svg)](https://github.com/lishinho/dsh-quality-lens/actions/workflows/test.yml)
 
 > 给每个 AI 回答做一次体检：动作行显示 **质量分 + 话题关联度**，点开是带证据的质检报告。
 > 更重要的是——它把「回答哪里弱」翻译成 **下次怎么问**，每条建议都能一键复制成更好的 prompt。
 > **只观测，不改写**：不 steer、不重写、不打断流式输出。
+> 已收录于 awesome-dsh-plugin，并进入 dshmarket 目录。
 
 ![质量报告面板](assets/screenshots/panel.png)
 
